@@ -9,8 +9,8 @@
 
 //did we win?
 extern bool victory, defeat;
-extern int64_t remaining_safe;
+extern int remaining_safe;
 
 uint32_t rng();
-void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq);
-void reveal(uint8_t *grid, int n, int64_t idx);
+void generate(uint8_t *grid, unsigned n, int mines, int first_click_sq);
+void reveal(uint8_t *grid, int n, int idx);

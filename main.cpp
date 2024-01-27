@@ -36,13 +36,13 @@ Vector2 mousepos;
 //-1 if mouse not pointing at a square, the square's index otherwise
 //NOTE: this is updated in the grid drawing routine
 //old_mouse_square is for using mouse index inside draw routines
-int64_t mouse_square = -1, old_mouse_square = -1;
+int mouse_square = -1, old_mouse_square = -1;
 
 //sound effects
 Sound snd_explosion, snd_flag, snd_win, snd_step;
 
 //TODO: (better?) textures
-void draw_square(int x, int y, int64_t index, int neighbors, bool revealed, bool mine, bool flag, bool highlight)
+void draw_square(int x, int y, int index, int neighbors, bool revealed, bool mine, bool flag, bool highlight)
 {
     int scr_x = x * tile_width - offset_x;
     int scr_y = y * tile_width - offset_y;
@@ -135,7 +135,7 @@ void draw_grid()
                     //0 * 82 + ... = revealed
                     //1 * 82 + ... = hidden
                     //2 * 82 + ... = flagged
-                    int64_t idx = a + n*(b + n*(c + n*d));
+                    int idx = a + n*(b + n*(c + n*d));
                     uint8_t tile = grid[idx];
                     uint8_t tile_type = tile % 82; //0...80 for neighbors, 81 for mine
 
@@ -203,7 +203,7 @@ void draw_grid()
                         //calculate current square
                         //NOTE: all the (int)s are required, otherwise we're gonna be
                         //off by 2^32!!!
-                        int64_t target = idx + da + (int)n*(db + (int)n*(dc + (int)n*dd));
+                        int target = idx + da + (int)n*(db + (int)n*(dc + (int)n*dd));
 
                         //if the square is flagged
                         if (grid[target] >= 164)
@@ -240,7 +240,7 @@ void start_game()
     offset_x = offset_y - (screenWidth - screenHeight) / 2.;
 
     //fill with empty squares at first; generation will be done on first click
-    for (uint64_t i = 0; i < n*n*n*n; i++)
+    for (unsigned i = 0; i < n*n*n*n; i++)
         grid[i] = 82; //x/82 == 1 => hidden (at the start everything is hidden)
 
     menu = false; //start the game
@@ -412,7 +412,7 @@ int main(void)
                 {
                     n = n/10; //remove last digit
                     //clamp mine count (using 82 instead of 81, otherwise its insta-dub)
-                    mines = std::min(std::max((int64_t)0, (int64_t)(n*n*n*n) - 82), (int64_t)mines);
+                    mines = std::min(std::max((int)0, (int)(n*n*n*n) - 82), (int)mines);
                 }
             }
             else if (mouseOnMinesText)
@@ -425,7 +425,7 @@ int main(void)
                     {
                         //add new digit at the end
                         //clamp mine count (using 82 instead of 81, otherwise its insta-dub)
-                        mines = std::min(std::max((int64_t)0, (int64_t)(n*n*n*n) - 82), (int64_t)mines*10 + key - '0');
+                        mines = std::min(std::max((int)0, (int)(n*n*n*n) - 82), (int)mines*10 + key - '0');
                     }
 
                     //NEXT!

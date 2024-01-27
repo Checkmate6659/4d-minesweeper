@@ -2,7 +2,7 @@
 
 //globals
 int n_mines; //mines in grid
-int64_t remaining_safe = -1; //-1 = before first click; 0 = victory
+int remaining_safe = -1; //-1 = before first click; 0 = victory
 bool victory = false; //did we win?
 bool defeat = false; //did we go boom?
 
@@ -14,15 +14,15 @@ uint32_t rng()
 }
 
 //Generate a grid (WARNING: this is O(n^4), obviously), with zero mines surrounding first_click_sq
-void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq)
+void generate(uint8_t *grid, unsigned n, int mines, int first_click_sq)
 {
-    uint64_t n4 = n*n*n*n;
+    unsigned n4 = n*n*n*n;
 
     //init globals
     n_mines = mines;
     remaining_safe = n4 - mines;
 
-    for (uint64_t i = 0; i < n4; i++)
+    for (unsigned i = 0; i < n4; i++)
     {
         //fill with empty squares at first
         grid[i] = 82; //x/82 == 1 => hidden (at the start everything is hidden)
@@ -32,12 +32,12 @@ void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq)
     for (int i = 0; i < mines; i++)
     {
         //when n >= 14, n^4 > RAND_MAX, so we need sth like this
-        int64_t idx = rng() % n4;
+        int idx = rng() % n4;
         while (grid[idx] == 163) //avoid already placed mines
             idx = rng() % n4;
 
         //get coordinates of mine
-        int64_t tmp = idx;
+        int tmp = idx;
         int x = tmp % n;
         tmp /= n;
         int y = tmp % n;
@@ -62,7 +62,7 @@ void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq)
 
             //calculate current square
             //TODO: replace with COORDS_TO_IDX
-            int64_t target = idx + dx + n*(dy + n*(dz + n*dw));
+            int target = idx + dx + n*(dy + n*(dz + n*dw));
             //if the square is next to the first click, we can't put a mine there!
             if (target == first_click_sq)
             {
@@ -93,7 +93,7 @@ void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq)
 
             //calculate current square
             //TODO: replace with COORDS_TO_IDX
-            int64_t target = idx + dx + n*(dy + n*(dz + n*dw));
+            int target = idx + dx + n*(dy + n*(dz + n*dw));
             //if the square is not a mine
             if (grid[target] != 163)
                 grid[target]++; //add 1 to the neighboring mine number
@@ -102,16 +102,16 @@ void generate(uint8_t *grid, uint64_t n, int mines, int64_t first_click_sq)
 }
 
 //Reveal a square (by index)
-void reveal(uint8_t *grid, int n, int64_t start_idx)
+void reveal(uint8_t *grid, int n, int start_idx)
 {
     //breadth first search for zero spreading, to avoid stack overflow
-    std::vector<uint64_t> stack;
+    std::vector<unsigned> stack;
     stack.push_back(start_idx);
 
     while (!stack.empty())
     {
         //get last element
-        uint64_t idx = stack[stack.size() - 1];
+        unsigned idx = stack[stack.size() - 1];
         stack.pop_back();
 
         //make sure we don't decrease this for already cleared squares
@@ -131,7 +131,7 @@ void reveal(uint8_t *grid, int n, int64_t start_idx)
         if (grid[idx] == 0)
         {
             //get coordinates of current square
-            int64_t tmp = idx;
+            int tmp = idx;
             int x = tmp % n;
             tmp /= n;
             int y = tmp % n;
@@ -156,7 +156,7 @@ void reveal(uint8_t *grid, int n, int64_t start_idx)
 
                 //calculate current square
                 //TODO: replace with COORDS_TO_IDX
-                int64_t target = idx + dx + n*(dy + n*(dz + n*dw));
+                int target = idx + dx + n*(dy + n*(dz + n*dw));
                 //if the square is not already revealed (stops infinite recursion as well)
                 if (grid[target] / 82 == 1) //don't reveal flagged squares at all!
                 {
