@@ -29,4 +29,5 @@ When game over, press SPACE to restart
 ## Credits
 This game was made with Raylib. It was inspired by the Steam game "4D Minesweeper".
 Sadly, that game isn't implemented in the most efficient way possible. This version
-allows up to a 16⁴ grid, and didn't lag or freeze up during any tests.
+allows up to a 16⁴ grid, and didn't lag or freeze except when displaying an unplayable
+amount of mines.
