@@ -1,5 +1,5 @@
 # 4d-minesweeper
-a 4D minesweeper made with Raylib
+a 4D minesweeper game made with Raylib
 
 ## How to play
 At the beginning, all cells are hidden. Click on a cell to step on it and reveal it.
@@ -25,3 +25,8 @@ Arrow keys or mouse drag to move camera (make sure not to accidentally click on 
 L/K or mouse wheel to zoom
 Reveal a tile with left click, flag with right click
 When game over, press SPACE to restart
+
+## Credits
+This game was made with Raylib. It was inspired by the Steam game "4D Minesweeper".
+Sadly, that game isn't implemented in the most efficient way possible. This version
+allows up to a 16⁴ grid, and didn't lag or freeze up during any tests.
