@@ -15,6 +15,13 @@ You win by revealing every non-mine cell on the board.
 The 4D playfield is split up into a 2D grid of 2D layers.
 Each cell can have up to 80 neighbors. For visual help, the neighbors are highlighted.
 
+## Adjusting resolution and windowed mode
+To change the resolution or play in windowed mode, the resolution/window size must be specified in the terminal.
+Examples:
+`minesweeper 1920 1080` launches 4D Minesweeper in fullscreen, in a 1920x1080 resolution.
+`minesweeper 640 480 --windowed` launches 4D Minesweeper in windowed mode, in a 640x480 resolution.
+If you forget this, type `minesweeper -h` or `minesweeper --help` (both work).
+
 ## Controls
 ### Menu controls:
 ESC to quit the game
