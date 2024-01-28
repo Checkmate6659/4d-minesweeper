@@ -3,13 +3,14 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string>
 #include "raylib.h"
 #include "game.h"
 #include "sound_data.h"
 
 //screen size
-int screenWidth = 1280;
-int screenHeight = 720;
+int screen_width = 1280;
+int screen_height = 720;
 
 //globals
 //display stuff
@@ -49,7 +50,7 @@ void draw_square(int x, int y, int index, int neighbors, bool revealed, bool min
 
     //square not on screen: don't spend precious time drawing it!
     if (scr_x < -tile_width || scr_y < -tile_width) return;
-    if (scr_x > screenWidth || scr_y > screenHeight) return;
+    if (scr_x > screen_width || scr_y > screen_height) return;
 
     //is the current rectangle getting hovered over?
     if (mousepos.x >= scr_x && mousepos.x < scr_x + tile_width
@@ -235,9 +236,9 @@ void start_game()
 
     //calculate starting position and tile width
     //height of the board is n(n+1) - 1 tiles; we want 1 extra on each side
-    tile_width = (float)screenHeight / (n*(n + 1) + 1);
+    tile_width = (float)screen_height / (n*(n + 1) + 1);
     offset_y = -tile_width; //1 row above the entire thing!
-    offset_x = offset_y - (screenWidth - screenHeight) / 2.;
+    offset_x = offset_y - (screen_width - screen_height) / 2.;
 
     //fill with empty squares at first; generation will be done on first click
     for (unsigned i = 0; i < n*n*n*n; i++)
@@ -273,11 +274,11 @@ void game_loop()
 
     //zoom
     if ((IsKeyDown(KEY_L) || GetMouseWheelMove() > 0.0)
-    && tile_width * 16 < screenWidth) //L = zoom moar
+    && tile_width * 16 < screen_width) //L = zoom moar
     {
         //zoom into the center
-        offset_x += screenWidth / 2.;
-        offset_y += screenHeight / 2.;
+        offset_x += screen_width / 2.;
+        offset_y += screen_height / 2.;
 
         //multiply everything
         float p = pow(4.0, GetFrameTime());
@@ -287,14 +288,14 @@ void game_loop()
         offset_y *= p;
 
         //get the thing back in place
-        offset_x -= screenWidth / 2.;
-        offset_y -= screenHeight / 2.;
+        offset_x -= screen_width / 2.;
+        offset_y -= screen_height / 2.;
     }
     if ((IsKeyDown(KEY_K) || GetMouseWheelMove() < -0.0)
-    && tile_width * 512 > screenWidth) //K = zoom less
+    && tile_width * 512 > screen_width) //K = zoom less
     {
-        offset_x += screenWidth / 2.;
-        offset_y += screenHeight / 2.;
+        offset_x += screen_width / 2.;
+        offset_y += screen_height / 2.;
 
         float p = pow(0.25, GetFrameTime());
         if (GetMouseWheelMove() < -0.0) p *= p * p; //more sensitivity with mouse wheel
@@ -302,8 +303,8 @@ void game_loop()
         offset_x *= p;
         offset_y *= p;
 
-        offset_x -= screenWidth / 2.;
-        offset_y -= screenHeight / 2.;
+        offset_x -= screen_width / 2.;
+        offset_y -= screen_height / 2.;
     }
 
     // Draw
@@ -317,8 +318,28 @@ void game_loop()
     EndDrawing();
 }
 
-int main(void)
+int main(int argc, char **argv)
 {
+    bool should_fullscreen = true;
+    if (argc > 1)
+    {
+        std::string arg1 = argv[1];
+        if (arg1 == "--help" || arg1 == "-h")
+        {
+            printf("4D Minesweeper game\nUsage: minesweeper [scr_width scr_height [--windowed]]\n");
+            printf("Examples:\nminesweeper\nminesweeper 1280 720\nminesweeper 640 480 --windowed\n");
+            return 0;
+        }
+        else if (argc > 2) //screen size
+        {
+            screen_width = std::stoi(arg1);
+            screen_height = std::stoi(argv[2]);
+
+            if (argc > 3 && std::string(argv[3]) == "--windowed") //windowed mode
+                should_fullscreen = false;
+        }
+    }
+
     //stop printing all that verbose info
     SetTraceLogLevel(LOG_WARNING);
 
@@ -359,13 +380,16 @@ int main(void)
     snd_step = LoadSoundFromWave(wave);
 
     // Initialization
-    //TODO: improve this! get the monitor size automatically
-    InitWindow(1280, 720, "4D Minesweeper");
-    ToggleFullscreen(); //nothing works
+    //TODO: improve this! get the monitor size automatically when fullscreening
+    InitWindow(screen_width, screen_height, "4D Minesweeper");
     //set icon: SetWindowIcon
 
-    screenWidth = GetScreenWidth();
-    screenHeight = GetScreenHeight();
+    if (should_fullscreen) //fullscreen
+    {
+        ToggleFullscreen();
+        screen_width = GetScreenWidth();
+        screen_height = GetScreenHeight();
+    }
 
     SetTargetFPS(60); // Set our game to run at 60 frames-per-second
 
@@ -385,10 +409,12 @@ int main(void)
         }
         else
         {
+            const int y_menu_offset = screen_height / 10;
+
             //draw main menu
-            const Rectangle n_textbox = { screenWidth/2.0f - 100, 180, 200, 50 };
-            const Rectangle mines_textbox = { screenWidth/2.0f - 100, 280, 200, 50 };
-            const Rectangle start_button = { screenWidth/2.0f - 100, screenHeight - 200.0f, 200, 50 };
+            const Rectangle n_textbox = { screen_width/2.0f - 100, y_menu_offset + 40.0f, 200, 50 };
+            const Rectangle mines_textbox = { screen_width/2.0f - 100, y_menu_offset + 140.0f, 200, 50 };
+            const Rectangle start_button = { screen_width/2.0f - 100, screen_height - y_menu_offset - 60.0f, 200, 50 };
             bool mouseOnNText = CheckCollisionPointRec(GetMousePosition(), n_textbox);
             bool mouseOnMinesText = CheckCollisionPointRec(GetMousePosition(), mines_textbox);
 
@@ -442,18 +468,18 @@ int main(void)
             ClearBackground(LIGHTGRAY);
 
             //draw N textbox
-            DrawText("Enter size of grid here:", n_textbox.x, 140, 20, GRAY);
+            DrawText("Enter size of grid here:", n_textbox.x, y_menu_offset, 20, GRAY);
 
             DrawRectangleRec(n_textbox, {160, 160, 160, 255});
             if (mouseOnNText) DrawRectangleLines((int)n_textbox.x, (int)n_textbox.y, (int)n_textbox.width, (int)n_textbox.height, RED);
             else DrawRectangleLines((int)n_textbox.x, (int)n_textbox.y, (int)n_textbox.width, (int)n_textbox.height, DARKGRAY);
 
-            char tmp_text[7] = "\0";
+            char tmp_text[42] = "\0";
             sprintf(tmp_text, "%d%c", n, '_' * (mouseOnNText * (int)(GetTime() * 2) % 2));
             DrawText(tmp_text, (int)n_textbox.x + 5, (int)n_textbox.y + 8, 40, DARKGRAY);
 
             //draw Mines textbox
-            DrawText("Enter number of mines here:", mines_textbox.x, 240, 20, GRAY);
+            DrawText("Enter number of mines here:", mines_textbox.x, y_menu_offset + 100, 20, GRAY);
 
             DrawRectangleRec(mines_textbox, {160, 160, 160, 255});
             if (mouseOnMinesText) DrawRectangleLines((int)mines_textbox.x, (int)mines_textbox.y, (int)mines_textbox.width, (int)mines_textbox.height, RED);
@@ -461,6 +487,10 @@ int main(void)
 
             sprintf(tmp_text, "%d%c", mines, '_' * (mouseOnMinesText * (int)(GetTime() * 2) % 2));
             DrawText(tmp_text, (int)mines_textbox.x + 5, (int)mines_textbox.y + 8, 40, DARKGRAY);
+
+            //recommended number of mines: n^4 / 31 (but get a 42 in)
+            sprintf(tmp_text, "Recommended number of mines: %u", (n==6) ? 42 : (n>3)*n*n*n*n/31);
+            DrawText(tmp_text, mines_textbox.x, y_menu_offset + 200, 20, GRAY);
 
             bool mouse_on_start = CheckCollisionPointRec(GetMousePosition(), start_button);
             if (mouse_on_start && mines > 0)
