@@ -62,14 +62,14 @@ void draw_square(int x, int y, int index, int neighbors, bool revealed, bool min
 
     //fill of rectangle
     DrawRectangle(scr_x, scr_y, draw_width, draw_height,
-        revealed ? (highlight ? (CLITERAL(Color) {179, 223, 255, 255}) : ((neighbors < 0) ? RED : LIGHTGRAY)) : (highlight ? SKYBLUE : DARKGRAY));
+        revealed ? ((mine && tile_width < 16) ? BLACK : (highlight ? (CLITERAL(Color) {179, 223, 255, 255}) : ((neighbors < 0) ? RED : LIGHTGRAY))) : (highlight ? SKYBLUE : DARKGRAY));
     //edges of rectangle (contained inside)
     if (tile_width >= 16)
         DrawRectangleLines(scr_x, scr_y, draw_width, draw_height, BLACK);
 
     if (revealed) //revealed: display mine (lost game) or number
     {
-        if (mine)
+        if (mine && tile_width >= 16)
         {
             //draw mine: circle and 4 straight lines
             DrawCircle(scr_x + tile_width * 0.5, scr_y + tile_width * 0.5, tile_width * 0.25, BLACK);
