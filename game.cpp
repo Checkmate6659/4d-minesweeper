@@ -10,7 +10,12 @@ bool defeat = false; //did we go boom?
 uint32_t rng()
 {
     //on linux RAND_MAX is INT32_MAX, on windows its INT16_MAX
+    //so when n >= 14, n^4 > RAND_MAX, so we need sth like this
+#if RAND_MAX < 65536
+    return RAND_MAX * rand() + rand();
+#else
     return rand();
+#endif
 }
 
 //Generate a grid (WARNING: this is O(n^4), obviously), with zero mines surrounding first_click_sq
@@ -31,7 +36,9 @@ void generate(uint8_t *grid, unsigned n, int mines, int first_click_sq)
     //place mines
     for (int i = 0; i < mines; i++)
     {
-        //when n >= 14, n^4 > RAND_MAX, so we need sth like this
+        //recommended amount of mines is 1/31 of the whole grid
+        //this means that in the worst case the average number of attempts is 1 + 1/30
+        //so rejection sampling is acceptable
         int idx = rng() % n4;
         while (grid[idx] == 163) //avoid already placed mines
             idx = rng() % n4;
